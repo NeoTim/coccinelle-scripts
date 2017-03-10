@@ -1,0 +1,48 @@
+# spatch --sp-file=addition-UB.cocci .
+
+diff -u -p ./gdk-pixbuf/io-ico.c /tmp/nothing/gdk-pixbuf/io-ico.c
+--- ./gdk-pixbuf/io-ico.c
++++ /tmp/nothing/gdk-pixbuf/io-ico.c
+@@ -249,7 +249,6 @@ static void DecodeHeader(guchar *Data, g
+
+  	IconCount = (Data[5] << 8) + (Data[4]);
+
+- 	State->HeaderSize = 6 + IconCount*16;
+
+         DEBUG(g_print ("Image type: %d (%s)\nImage count: %d\n", imgtype, imgtype == 2 ? "cursor" : "icon", IconCount));
+
+@@ -331,9 +330,7 @@ static void DecodeHeader(guchar *Data, g
+ 		}
+
+ 		/* We know how many bytes are in the "header" part. */
+-		State->HeaderSize = entry->DIBoffset + INFOHEADER_SIZE;
+
+-		if (State->HeaderSize < 0) {
+ 			g_set_error (error,
+ 			             GDK_PIXBUF_ERROR,
+ 			             GDK_PIXBUF_ERROR_CORRUPT_IMAGE,
+@@ -391,8 +388,6 @@ static void DecodeHeader(guchar *Data, g
+ #endif
+ 	/* Add the palette to the headersize */
+
+-	State->Header.width =
+-	    (int)(BIH[7] << 24) + (BIH[6] << 16) + (BIH[5] << 8) + (BIH[4]);
+ 	if (State->Header.width == 0)
+ 		State->Header.width = 256;
+
+@@ -407,7 +402,6 @@ static void DecodeHeader(guchar *Data, g
+ 		State->Header.height = -State->Header.height;
+ 		State->Header.Negative = 1;
+ 	}
+-	if (State->Header.width < 0) {
+ 		State->Header.width = -State->Header.width;
+ 	}
+
+@@ -437,7 +431,6 @@ static void DecodeHeader(guchar *Data, g
+
+ 	State->HeaderSize+=I;
+
+-	if (State->HeaderSize < 0) {
+ 		g_set_error (error,
+                              GDK_PIXBUF_ERROR,
+                              GDK_PIXBUF_ERROR_CORRUPT_IMAGE,
